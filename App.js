@@ -1,29 +1,27 @@
 import React, { Component } from 'react';
-import { View } from 'react-native';
-import { LoginButton, AccessToken } from 'react-native-fbsdk';
+import { View, Button } from 'react-native';
+import { LoginButton, AccessToken, ShareDialog } from 'react-native-fbsdk';
+import AppNavigator from './components/navigation/AppNavigator';
+import {createStackNavigator} from 'react-navigation-stack';
+import {createAppContainer} from 'react-navigation';
 
-export default class Login extends Component {
-  render() {
-    return (
-      <View>
-        <LoginButton
-          onLoginFinished={
-            (error, result) => {
-              if (error) {
-                console.log("login has error: " + result.error);
-              } else if (result.isCancelled) {
-                console.log("login is cancelled.");
-              } else {
-                AccessToken.getCurrentAccessToken().then(
-                  (data) => {
-                    console.log(data.accessToken.toString())
-                  }
-                )
-              }
-            }
-          }
-          onLogoutFinished={() => console.log("logout.")}/>
-      </View>
-    );
+const RootStack = createStackNavigator(
+  {
+    AppNavigator: {
+      screen: AppNavigator,
+      navigationOptions: {
+        title: 'AppNavigator',
+        header: null, //this will hide the header
+      },
+    },
   }
-};
+);
+
+const AppContainer = createAppContainer(RootStack);
+
+export default class App extends Component {
+  render() {
+    console.disableYellowBox = true;
+    return <AppContainer />
+  }
+}
