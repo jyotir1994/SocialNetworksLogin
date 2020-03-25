@@ -7,20 +7,55 @@ import {
   View,
   StatusBar,
   Text, 
-  TouchableHighlight
+  TouchableHighlight,
+  Button
 } from 'react-native';
 import { LoginButton, AccessToken, ShareDialog, GraphRequest, GraphRequestManager } from 'react-native-fbsdk';
-import { Card, Image } from 'react-native-elements'
+import { Card, Image } from 'react-native-elements';
+import ImagePicker from 'react-native-image-picker';
 
 const App = () => {
 
+  const [filePath, setFilePath] = useState();
   const [profile, setProfile] = useState([]);
   const [profileImage, setProfileImage] = useState();
   const [isLoggedIn, setLoggedIn] = useState(false);
+  chooseFile = () => {
+    var options = {
+      title: 'Select Image',
+      
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+    ImagePicker.showImagePicker(options, response => {
+      console.log('Response = ', response);
+
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        let source = response;
+        // You can also display the image using data:
+        // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+          setFilePath(source.uri)
+      }
+    });
+  };
+
   const SHARE_LINK_CONTENT = {
     contentType: 'link',
     contentUrl: 'https://gaana.com/myfavoritetracks',
   };
+
+  const photoUri = 'file://' + '../assest/pic.jpg'
+  const SHARE_PHOTO_CONTENT = {
+    contentType: 'photo',
+    photos: [{ imageUrl: filePath }],
+  };
+  
 
   getPublicProfile = async () => {
     const infoRequest = new GraphRequest(
@@ -45,6 +80,24 @@ const App = () => {
       try {
         const {isCancelled, postId} = await ShareDialog.show(
           SHARE_LINK_CONTENT,
+        );
+        if (isCancelled) {
+          Alert.alert('Share cancelled');
+        } else {
+          Alert.alert('Share success with postId: ' + postId);
+        }
+      } catch (error) {
+        Alert.alert('Share fail with error: ' + error);
+      }
+    }
+  };
+
+  sharePhotoWithDialog = async () => {
+    const canShow = await ShareDialog.canShow(SHARE_PHOTO_CONTENT);
+    if (canShow) {
+      try {
+        const {isCancelled, postId} = await ShareDialog.show(
+          SHARE_PHOTO_CONTENT,
         );
         if (isCancelled) {
           Alert.alert('Share cancelled');
@@ -96,6 +149,10 @@ const App = () => {
                 <TouchableHighlight onPress={this.shareLinkWithDialog}>
                   <Text style={styles.shareText}>Share link with ShareDialog</Text>
                 </TouchableHighlight>
+                <TouchableHighlight onPress={this.sharePhotoWithDialog}>
+                  <Text style={styles.shareText}>Share photo with ShareDialog</Text>
+                </TouchableHighlight>
+                <Button title="Choose File" onPress={this.chooseFile.bind(this)} />
               </Card> 
             }
           </View>
