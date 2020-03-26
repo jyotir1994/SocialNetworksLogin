@@ -6,7 +6,7 @@ import {
   ScrollView,
   View,
   StatusBar,
-  Text, 
+  Text,
   TouchableHighlight,
   Button
 } from 'react-native';
@@ -16,21 +16,22 @@ import ImagePicker from 'react-native-image-picker';
 
 const App = () => {
 
-  const [filePath, setFilePath] = useState();
+  const [imageFilePath, setImageFilePath] = useState();
+  const [videoFilePath, setVideoFilePath] = useState();
   const [profile, setProfile] = useState([]);
   const [profileImage, setProfileImage] = useState();
   const [isLoggedIn, setLoggedIn] = useState(false);
-  chooseFile = () => {
+  chooseImage = () => {
     var options = {
       title: 'Select Image',
-      
+      mediaType: 'image',
       storageOptions: {
         skipBackup: true,
         path: 'images',
       },
     };
     ImagePicker.showImagePicker(options, response => {
-      console.log('Response = ', response);
+      console.log('Image Response = ', response);
 
       if (response.didCancel) {
         console.log('User cancelled image picker');
@@ -40,7 +41,33 @@ const App = () => {
         let source = response;
         // You can also display the image using data:
         // let source = { uri: 'data:image/jpeg;base64,' + response.data };
-          setFilePath(source.uri)
+        setImageFilePath(source.uri)
+      }
+    });
+  };
+
+  chooseVideo = () => {
+    var options = {
+      title: 'Select video',
+      mediaType: 'video',
+      videoQuality: 'medium',
+      // storageOptions: {
+      //   skipBackup: true,
+      //   path: 'images',
+      // },
+    };
+    ImagePicker.showImagePicker(options, response => {
+      console.log('Video Response = ', response);
+
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        let source = response;
+        // You can also display the image using data:
+        // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+        setVideoFilePath('file://' + source.path)
       }
     });
   };
@@ -50,12 +77,15 @@ const App = () => {
     contentUrl: 'https://gaana.com/myfavoritetracks',
   };
 
-  const photoUri = 'file://' + '../assest/pic.jpg'
   const SHARE_PHOTO_CONTENT = {
     contentType: 'photo',
-    photos: [{ imageUrl: filePath }],
+    photos: [{ imageUrl: imageFilePath }],
   };
-  
+  const SHARE_VIDEO_CONTENT = {
+    contentType: 'video',
+    video: { localUrl: videoFilePath },
+  }
+
 
   getPublicProfile = async () => {
     const infoRequest = new GraphRequest(
@@ -78,7 +108,7 @@ const App = () => {
     const canShow = await ShareDialog.canShow(SHARE_LINK_CONTENT);
     if (canShow) {
       try {
-        const {isCancelled, postId} = await ShareDialog.show(
+        const { isCancelled, postId } = await ShareDialog.show(
           SHARE_LINK_CONTENT,
         );
         if (isCancelled) {
@@ -96,7 +126,7 @@ const App = () => {
     const canShow = await ShareDialog.canShow(SHARE_PHOTO_CONTENT);
     if (canShow) {
       try {
-        const {isCancelled, postId} = await ShareDialog.show(
+        const { isCancelled, postId } = await ShareDialog.show(
           SHARE_PHOTO_CONTENT,
         );
         if (isCancelled) {
@@ -109,15 +139,32 @@ const App = () => {
       }
     }
   };
-  
+
+  shareVideoWithDialog = async () => {
+    const canShow = await ShareDialog.canShow(SHARE_VIDEO_CONTENT);
+    if (canShow) {
+      try {
+        const { isCancelled, postId } = await ShareDialog.show(
+          SHARE_VIDEO_CONTENT,
+        );
+        if (isCancelled) {
+          Alert.alert('Share cancelled');
+        } else {
+          Alert.alert('Share success with postId: ' + postId);
+        }
+      } catch (error) {
+        Alert.alert('Share fail with error: ' + error);
+      }
+    }
+  };
+
   return (
     <>
-      <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <View>
+        >
+          <View style={styles.viewContainer}>
             <LoginButton
               onLoginFinished={
                 (error, result) => {
@@ -139,21 +186,25 @@ const App = () => {
               onLogoutFinished={() => {
                 console.log("logout.");
                 setLoggedIn(false);
-              }}/>
-            { isLoggedIn && <Card
-                title={profile.name}>
-                <Image
-                  source={{ uri: profileImage }}
-                  style={{ width: 50, height: 50 }}
-                />
-                <TouchableHighlight onPress={this.shareLinkWithDialog}>
-                  <Text style={styles.shareText}>Share link with ShareDialog</Text>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.sharePhotoWithDialog}>
-                  <Text style={styles.shareText}>Share photo with ShareDialog</Text>
-                </TouchableHighlight>
-                <Button title="Choose File" onPress={this.chooseFile.bind(this)} />
-              </Card> 
+              }} />
+            {isLoggedIn && <Card
+              title={profile.name}>
+              <Image
+                source={{ uri: profileImage }}
+                style={{ width: 50, height: 50 }}
+              />
+              <TouchableHighlight onPress={this.shareLinkWithDialog} style={styles.shareBtn}>
+                <Text style={styles.shareText}>Share link with ShareDialog</Text>
+              </TouchableHighlight>
+              <TouchableHighlight onPress={this.sharePhotoWithDialog} style={styles.shareBtn}>
+                <Text style={styles.shareText}>Share photo with ShareDialog</Text>
+              </TouchableHighlight>
+              <TouchableHighlight onPress={this.shareVideoWithDialog} style={styles.shareBtn}>
+                <Text style={styles.shareText}>Share video with ShareDialog</Text>
+              </TouchableHighlight>
+              <Button style={{margin: 5}} title="Choose Image" onPress={this.chooseImage.bind(this)} />
+              <Button style={styles.chooseBtn} title="Choose video" onPress={this.chooseVideo.bind(this)} />
+            </Card>
             }
           </View>
         </ScrollView>
@@ -164,6 +215,24 @@ const App = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
+  },
+  viewContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    flexDirection: 'column',
+    padding: 10,
+  },
+  shareBtn: {
+    width: '100%',
+    justifyContent: 'center',
+    margin: 5
+  },
+  chooseBtn: {
+    margin: 5
+  },
+  shareText: {
+    fontSize: 20,
+    fontStyle: 'italic'
   },
   engine: {
     position: 'absolute',
