@@ -4,6 +4,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import FbShare from '../screens/FbShare'
 import fbHomeScreen from '../screens/FacebookHomeScreen';
 import SignInFromGoogle from '../screens/SignInFromGoogle';
+import LinkedInLogin from '../screens/LinkedInLogin';
 
 const FacebookNavigator = createStackNavigator({
     FbHomeScreen: { screen: fbHomeScreen },
@@ -20,6 +21,7 @@ const DrawerNavigator = createDrawerNavigator(
             // },
         },
         SignInFromGoogle: { screen: SignInFromGoogle },
+        LinkedIn: { screen: LinkedInLogin },
 
     },
     //   {
