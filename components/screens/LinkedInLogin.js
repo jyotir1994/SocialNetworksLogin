@@ -16,7 +16,7 @@ export default class App extends Component {
     };
   };
     render() {
-      console.disableYellowBox = true;
+      const { navigate } = this.props.navigation;
       return <View style={{flex: 1, justifyContent: 'center'}}>
         <LinkedInModal
           shouldGetAccessToken={false}

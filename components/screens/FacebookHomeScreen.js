@@ -15,6 +15,7 @@ export default class Login extends Component {
   };
 
       render() {
+        const { navigate } = this.props.navigation;
         return (
           <View style={{ flex: 1, flexDirection: 'column' }}>
             <Button
