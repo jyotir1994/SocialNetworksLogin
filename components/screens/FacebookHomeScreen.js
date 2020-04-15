@@ -22,10 +22,8 @@ export default class Login extends Component {
               style={{ fontSize: 20, color: 'green' }}
               styleDisabled={{ color: 'red' }}
               onPress={() => this.props.navigation.navigate('Share')}
-              title="FB Share"
-            >
-              fb Share
-    </Button>
+              title="Facebook"
+            ></Button>
     
     
           </View>

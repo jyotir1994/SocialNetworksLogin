@@ -17,7 +17,7 @@ export default class App extends Component {
   };
     render() {
       const { navigate } = this.props.navigation;
-      return <View style={{flex: 1, justifyContent: 'center'}}>
+      return <View style={{flex: 1, flexDirection: 'column', padding: 5}}>
         <LinkedInModal
           shouldGetAccessToken={false}
           clientSecret='Yq9hW0s4IVMpYMhY'
