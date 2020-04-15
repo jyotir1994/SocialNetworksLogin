@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Platform, View, Text, StyleSheet, Share, TextInput, Button, Alert } from 'react-native';
  
 import Share from 'react-native-share';
-export default class Myapp extends Component<{}>
+export default class Myapp extends Component
 {
     constructor()
     {
